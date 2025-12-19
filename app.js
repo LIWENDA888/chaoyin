@@ -9,6 +9,7 @@ const State = {
 };
 
 const HOT_PAGE_SIZE = 36; // 3, 4, 6 columns compatible
+const MAX_HOT_PAGES = 10; // 限制最多显示10页热榜
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
@@ -206,7 +207,11 @@ function openZdic(e, char) {
 }
 
 function changeHotPage(delta) {
-    const maxPages = Math.ceil(Object.keys(State.stats.frequencyMap).length / HOT_PAGE_SIZE);
+    // 计算总页数
+    const rawTotalPages = Math.ceil(Object.keys(State.stats.frequencyMap).length / HOT_PAGE_SIZE);
+    // 限制最大页数
+    const maxPages = Math.min(rawTotalPages, MAX_HOT_PAGES);
+    
     const newPage = State.hotListPage + delta;
     
     if (newPage >= 0 && newPage < maxPages) {
@@ -215,7 +220,7 @@ function changeHotPage(delta) {
     }
 }
 
-// ---------------- 模态框逻辑 ----------------
+// ---------------- 模态框逻辑 (Heat Source) ----------------
 
 function showHeatSources(e, char) {
     e.stopPropagation();
@@ -249,6 +254,38 @@ function showHeatSources(e, char) {
 
 function closeHeatModal() {
     const modal = document.getElementById('heat-source-modal');
+    const backdrop = modal.querySelector('.modal-backdrop');
+    const content = modal.querySelector('.modal-content');
+
+    backdrop.classList.add('opacity-0');
+    content.classList.remove('opacity-100', 'scale-100');
+    content.classList.add('opacity-0', 'scale-95');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 300);
+}
+
+// ---------------- 模态框逻辑 (Info/About) ----------------
+
+function openInfoModal() {
+    const modal = document.getElementById('info-modal');
+    const backdrop = modal.querySelector('.modal-backdrop');
+    const content = modal.querySelector('.modal-content');
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    requestAnimationFrame(() => {
+        backdrop.classList.remove('opacity-0');
+        content.classList.remove('opacity-0', 'scale-95');
+        content.classList.add('opacity-100', 'scale-100');
+    });
+}
+
+function closeInfoModal() {
+    const modal = document.getElementById('info-modal');
     const backdrop = modal.querySelector('.modal-backdrop');
     const content = modal.querySelector('.modal-content');
 
@@ -349,8 +386,11 @@ function renderContent() {
 function renderDashboard(container) {
     const allHotChars = Object.entries(State.stats.frequencyMap).sort((a, b) => b[1] - a[1]);
     const totalItems = allHotChars.length;
-    const totalPages = Math.ceil(totalItems / HOT_PAGE_SIZE);
     
+    // 计算页数并限制
+    let totalPages = Math.ceil(totalItems / HOT_PAGE_SIZE);
+    if (totalPages > MAX_HOT_PAGES) totalPages = MAX_HOT_PAGES;
+
     // 分页切片
     const startIdx = State.hotListPage * HOT_PAGE_SIZE;
     const endIdx = startIdx + HOT_PAGE_SIZE;
@@ -362,9 +402,7 @@ function renderDashboard(container) {
 
     container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
-            <!-- 热力榜 (Glass + Grid Layout) -->
             <div class="lg:col-span-2 bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl p-8 rounded-[2rem] border border-white/60 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none relative overflow-hidden group">
-                <!-- Decorative Gradient -->
                 <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-100/40 to-transparent dark:from-orange-900/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
                 
                 <div class="flex items-center justify-between mb-8 relative z-10">
@@ -376,7 +414,6 @@ function renderDashboard(container) {
                         <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 ml-2">Page ${State.hotListPage + 1}/${totalPages}</span>
                     </h3>
                     
-                    <!-- Pagination Controls -->
                     <div class="flex items-center gap-2">
                         <button onclick="changeHotPage(-1)" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all" ${prevDisabled ? 'disabled' : ''}>
                             <i data-lucide="chevron-left" width="16"></i>
@@ -387,13 +424,11 @@ function renderDashboard(container) {
                     </div>
                 </div>
 
-                <!-- Strict Grid Layout for Hot Cards -->
                 <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 relative z-10">
                     ${displayChars.map(([char, heat]) => `
                         <div onclick="handleSearch('${char}')" class="group/card cursor-pointer bg-white/80 dark:bg-[#1a1a1a]/80 hover:bg-white dark:hover:bg-[#222] rounded-xl border border-white dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between px-3 py-2.5 hover:-translate-y-0.5 active:scale-95 active:shadow-none">
                             <span class="font-serif text-lg font-bold text-slate-700 dark:text-slate-200 leading-none group-hover/card:text-teal-700 dark:group-hover/card:text-teal-400 transition-colors">${char}</span>
                             
-                            <!-- Heat Badge (Clickable for Modal) -->
                             <div onclick="showHeatSources(event, '${char}')" class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 hover:bg-orange-100 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer" title="点击查看热力溯源">
                                 <i data-lucide="flame" width="10" class="fill-orange-400 text-orange-400 dark:text-orange-500 dark:fill-orange-500"></i>
                                 ${heat}
@@ -403,7 +438,6 @@ function renderDashboard(container) {
                 </div>
             </div>
             
-            <!-- 说明区 (Glass) -->
             <div class="bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl p-8 rounded-[2rem] border border-white/60 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex flex-col relative h-full">
                 <h3 class="font-bold text-lg mb-8 flex items-center gap-3 text-slate-800 dark:text-slate-200">
                     <div class="p-2 bg-white dark:bg-slate-700 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
@@ -477,23 +511,19 @@ function generateCardHtml(char, isSmall = false) {
             onclick="copyToClipboard('${char}')"
             class="group relative flex flex-col items-center justify-center bg-white/80 dark:bg-[#161616] backdrop-blur-sm rounded-2xl ${heightClass} shadow-[0_4px_12px_rgba(0,0,0,0.02)] dark:shadow-none border border-white/80 dark:border-white/5 hover:border-blue-100 dark:hover:border-slate-700 hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] dark:hover:shadow-none hover:-translate-y-1 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) cursor-pointer select-none overflow-hidden"
         >
-            <!-- 汉典链接 -->
             <button onclick="openZdic(event, '${char}')" class="absolute top-2.5 right-2.5 p-1.5 text-slate-300 dark:text-slate-700 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-300 z-20" title="汉典">
                 <i data-lucide="external-link" width="14"></i>
             </button>
             
-            <!-- 主字符 -->
             <div class="${sizeClass} font-serif font-medium text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white group-hover:scale-110 transition-all duration-500 z-10 mb-2">
                 ${char}
             </div>
 
-            <!-- 底部热力值 (小火苗) -->
             <div class="absolute bottom-3 flex items-center gap-1 opacity-80 group-hover:opacity-0 transition-opacity duration-300">
                 <i data-lucide="flame" width="12" class="fill-orange-400 text-orange-400 dark:text-orange-500 dark:fill-orange-500"></i>
                 <span class="text-[10px] font-bold text-slate-400 dark:text-slate-600 font-sans">${heat}</span>
             </div>
             
-            <!-- 悬停提示 -->
             <div class="absolute bottom-0 left-0 right-0 h-9 bg-slate-900/5 dark:bg-white/5 backdrop-blur-[2px] border-t border-slate-100 dark:border-white/5 flex items-center justify-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-30">
                 <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 tracking-wide">点击复制</span>
             </div>
