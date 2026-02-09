@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>超引 - 形近字查询</title>
+    <title>超引形近字 - 中文近似字查询与拆解</title>
     
-    <meta name="description" content="超引 - 形近字查询神器">
+    <meta name="description" content="超引形近字 - 中文近似字查询与拆解">
     <meta name="author" content="超引">
-    <meta property="og:title" content="超引 - 形近字查询">
-    <meta property="og:image" content="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/AR9P/ico.ico">
-    <meta property="og:url" content="https://www.zizao.top">
-    <meta property="og:type" content="website">
-    <link rel="icon" href="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251101/8hkj/ico.ico" type="zizaoicon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,9 +25,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Smooth Scrollbar */
+        ::-webkit-scrollbar { width: 8px; background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.4); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.6); }
+        .dark ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.6); }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate3d(0, 30px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .animate-fade-in { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 10s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+    </style>
 </head>
-<body class="bg-[#fcfcfc] dark:bg-[#020202] text-slate-800 dark:text-slate-100 font-sans h-screen flex flex-col overflow-hidden selection:bg-blue-500/30 selection:text-blue-900 dark:selection:text-blue-100 relative transition-colors duration-700">
+<body class="bg-[#fcfcfc] dark:bg-[#020202] text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col relative transition-colors duration-700">
 
     <div class="fixed top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-100/40 dark:bg-blue-900/10 rounded-full blur-[120px] pointer-events-none z-0 mix-blend-multiply dark:mix-blend-screen animate-blob transition-colors duration-1000"></div>
     <div class="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-teal-100/40 dark:bg-teal-900/10 rounded-full blur-[120px] pointer-events-none z-0 mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000 transition-colors duration-1000"></div>
@@ -41,25 +61,21 @@
     <nav class="flex-none h-16 w-full flex items-center justify-between px-6 text-sm text-slate-500/80 dark:text-slate-400 z-50 font-medium relative">
         <div class="flex items-center gap-6">
             <a href="https://www.zizao.top" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">自在造字首页</a>
-            <a href="https://www.zizao.top/fonts" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">字体产品</a>
-            <a href="https://hao.zizao.top" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">设计导航</a>
-            <a href="https://bao.zizao.top" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">设计百宝库</a>
-            <a href="https://tools.zizao.top/txt" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">文本编辑器Pro</a>
-            <a href="https://tools.zizao.top/character" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">文本编辑器Pro</a>
+            <a href="https://www.zizao.top/fonts" target="_blank" class="hidden sm:block hover:text-slate-900 dark:hover:text-white transition-colors">字体产品</a>
         </div>
         <div class="flex items-center gap-4">
-            <button id="theme-toggle-btn" onclick="toggleTheme()" class="p-2.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all duration-300 group relative" title="切换显示模式">
+            <button id="theme-toggle-btn" onclick="toggleTheme()" class="p-2.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all duration-300 group relative">
                 <i data-lucide="moon" class="block dark:hidden transition-transform duration-500 rotate-0 dark:-rotate-90" width="18"></i>
                 <i data-lucide="sun" class="hidden dark:block transition-transform duration-500 rotate-90 dark:rotate-0" width="18"></i>
             </button>
         </div>
     </nav>
 
-    <main class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col items-center z-10">
+    <main class="flex-1 w-full relative flex flex-col items-center z-10">
         
         <div id="search-container" class="w-full max-w-2xl px-4 flex flex-col items-center transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] mt-16 mb-8">
             
-            <div id="main-logo" class="h-14 w-auto mb-10 transition-all duration-500 cursor-pointer drop-shadow-sm hover:opacity-80 dark:brightness-125 dark:contrast-125 flex justify-center items-center" onclick="resetApp()">
+            <div id="main-logo" class="h-14 w-auto mb-6 transition-all duration-500 cursor-pointer drop-shadow-sm hover:opacity-80 dark:brightness-125 dark:contrast-125 flex justify-center items-center" onclick="resetApp()">
                 <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" 
                      alt="字·形 Logo (Light)" 
                      class="h-full w-auto object-contain block dark:hidden">
@@ -75,8 +91,8 @@
                         近似
                         <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-slate-800 dark:bg-white scale-0 transition-transform duration-300 tab-dot"></span>
                     </button>
-                    <button onclick="setSearchMode('radical')" class="search-tab relative py-1 transition-all duration-300 hover:text-slate-600 dark:hover:text-slate-300" data-mode="radical">
-                        关联
+                    <button onclick="setSearchMode('decomposition')" class="search-tab relative py-1 transition-all duration-300 hover:text-slate-600 dark:hover:text-slate-300" data-mode="decomposition">
+                        拆字
                         <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-slate-800 dark:bg-white scale-0 transition-transform duration-300 tab-dot"></span>
                     </button>
                 </div>
@@ -88,7 +104,7 @@
                             <div class="pl-5 text-slate-400/80 dark:text-slate-500">
                                 <i data-lucide="search" width="20"></i>
                             </div>
-                            <input type="text" id="main-search-input" placeholder="输入单个汉字..." class="flex-1 h-full py-2 px-4 text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-serif bg-transparent tracking-wide" maxlength="1">
+                            <input type="text" id="main-search-input" placeholder="输入汉字 (例如: 咧)..." class="flex-1 h-full py-2 px-4 text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
                             <button id="main-clear-btn" class="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 p-2 hidden transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full mr-1">
                                 <i data-lucide="x" width="16"></i>
                             </button>
@@ -102,15 +118,15 @@
                     </button>
                 </div>
 
-                <div class="flex items-center justify-center sm:justify-start gap-6 px-5 mt-1 text-[11px] font-medium text-slate-400 dark:text-slate-600 tracking-wider uppercase opacity-80">
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-teal-400/80 dark:bg-teal-600"></span>
-                        <span>收录 <strong class="font-sans text-slate-600 dark:text-slate-400 ml-0.5" id="header-stat-groups">0</strong></span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400/80 dark:bg-blue-600"></span>
-                        <span>关联 <strong class="font-sans text-slate-600 dark:text-slate-400 ml-0.5" id="header-stat-relations">0</strong></span>
-                    </div>
+                <div class="flex justify-center w-full mt-3 mb-1">
+                    <a href="#" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:bg-white hover:shadow-md hover:border-slate-300/60 dark:hover:bg-white/10 transition-all duration-300 cursor-pointer group">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500 dark:bg-orange-400"></span>
+                        </span>
+                        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">Glyphs插件-SuperRef已上线-点击了解细节</span>
+                        <i data-lucide="arrow-up-right" width="12" class="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-slate-400 dark:text-slate-500"></i>
+                    </a>
                 </div>
 
             </div>
@@ -121,17 +137,13 @@
 
     </main>
 
-    <footer class="flex-none py-6 z-10 relative">
-        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[10px] sm:text-[11px] text-slate-400/80 dark:text-slate-700 font-medium tracking-wide">
-            
+    <footer class="flex-none py-6 z-10 relative mt-auto">
+        <div class="max-w-6xl mx-auto px-6 flex flex-row items-center justify-between text-[10px] sm:text-[11px] text-slate-400/80 dark:text-slate-700 font-medium tracking-wide">
             <span class="whitespace-nowrap">Copyright © 2025 超引形近字 BY 自在造字</span>
-            
-            <div class="hidden sm:block text-slate-300/50 dark:text-slate-800">|</div>
-
             <div class="flex items-center gap-2">
                 <button onclick="openInfoModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-400 transition-all duration-300 text-slate-500 dark:text-slate-500 group">
                     <i data-lucide="info" width="13" class="group-hover:scale-110 transition-transform"></i>
-                    <span>关于 / 说明</span>
+                    <span>关于我们</span>
                 </button>
             </div>
         </div>
@@ -145,29 +157,26 @@
             </button>
             
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-3xl font-serif font-bold text-slate-800 dark:text-white border border-orange-100 dark:border-orange-500/20" id="modal-char-icon">
-                    ?
-                </div>
+                <div class="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-3xl font-serif font-bold text-slate-800 dark:text-white border border-orange-100 dark:border-orange-500/20" id="modal-char-icon">?</div>
                 <div>
                     <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                        热力溯源
+                        热门溯源
                         <span class="text-[10px] font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-0.5 rounded-full flex items-center gap-1">
                             <i data-lucide="flame" width="10" class="fill-orange-500"></i>
                             <span id="modal-heat-val">0</span>
                         </span>
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">该字出现在以下字符组中：</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">该字与以下字符相关：</p>
                 </div>
             </div>
             
             <div class="flex-1 overflow-y-auto custom-scrollbar -mr-2 pr-2">
-                 <div id="modal-source-list" class="grid grid-cols-5 sm:grid-cols-6 gap-3">
-                     </div>
+                 <div id="modal-source-list" class="grid grid-cols-5 sm:grid-cols-6 gap-3"></div>
             </div>
             
             <div class="mt-6 pt-4 border-t border-slate-100 dark:border-white/5 text-center">
                  <button onclick="closeHeatModal(); handleSearch(document.getElementById('modal-char-icon').innerText.trim())" class="text-xs font-medium text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                     搜索该字符详情 &rarr;
+                     查询该字符详情 &rarr;
                  </button>
             </div>
         </div>
@@ -175,41 +184,568 @@
 
     <div id="info-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm transition-opacity opacity-0 modal-backdrop" onclick="closeInfoModal()"></div>
-        <div class="relative bg-white/95 dark:bg-[#161616]/95 backdrop-blur-xl w-full max-w-sm rounded-[2rem] shadow-2xl border border-white/50 dark:border-white/10 p-8 transform scale-95 opacity-0 transition-all duration-300 modal-content">
-            <button onclick="closeInfoModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors">
-                <i data-lucide="x" width="20"></i>
+        <div class="relative bg-white/95 dark:bg-[#161616]/95 backdrop-blur-xl w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-white/10 p-8 sm:p-10 transform scale-95 opacity-0 transition-all duration-300 modal-content overflow-hidden flex flex-col">
+            <button onclick="closeInfoModal()" class="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors z-20">
+                <i data-lucide="x" width="22"></i>
             </button>
             
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                     <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/AR9P/ico.ico" class="w-10 h-10 object-contain opacity-80" alt="Icon">
+            <div class="flex items-center justify-center gap-3 mb-10">
+                 <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" alt="Logo" class="h-8 w-auto object-contain block dark:hidden">
+                 <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" alt="Logo" class="h-8 w-auto object-contain hidden dark:block">
+                 <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold border border-blue-100 dark:border-blue-500/20">v2.1</span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 relative z-10 flex-1">
+                <div class="flex flex-col h-full bg-slate-50/50 dark:bg-white/5 rounded-2xl p-6 border border-slate-100 dark:border-white/5">
+                    <h4 class="font-bold text-sm mb-5 text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <i data-lucide="book-open" width="14" class="text-blue-500"></i> 关于我们
+                    </h4>
+                    <div class="prose prose-sm text-xs leading-relaxed text-slate-500 dark:text-slate-400 flex-1">
+                        <p class="mb-4">“超引”是一个辅助字体设计与排版检索的工具，通过部件关联算法，快速寻找汉字间的形体联系。</p>
+                        <p>数据逻辑已更新为“双向部件索引”，支持拆字查询与模糊形近查询。</p>
+                    </div>
                 </div>
-                <h3 class="text-lg font-bold text-slate-800 dark:text-white">超引 · 形近字</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">版本 v1.0.2 (2025)</p>
+                <div class="flex flex-col h-full bg-slate-50/50 dark:bg-white/5 rounded-2xl p-6 border border-slate-100 dark:border-white/5">
+                    <h4 class="font-bold text-sm mb-5 text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <i data-lucide="sparkles" width="14" class="text-amber-500"></i> 功能指南
+                    </h4>
+                    <ul class="space-y-4 text-xs text-slate-600 dark:text-slate-400 list-none">
+                        <li class="flex gap-3">
+                            <div class="w-6 h-6 rounded-full bg-white dark:bg-white/10 flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-300 font-bold font-sans">1</div>
+                            <div class="pt-1"><strong class="block text-slate-700 dark:text-slate-300 mb-0.5">近似搜索</strong> 搜索“咧”，智能关联由“列”组成的汉字家族（如：例、裂）。</div>
+                        </li>
+                        <li class="flex gap-3">
+                            <div class="w-6 h-6 rounded-full bg-white dark:bg-white/10 flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-300 font-bold font-sans">2</div>
+                            <div class="pt-1"><strong class="block text-slate-700 dark:text-slate-300 mb-0.5">拆字功能</strong> 快速查询汉字的组成部件（如：咧 &rarr; 口 + 列）。</div>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="space-y-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/5">
-                <p><strong>关于本站：</strong><br>
-                “超引”是一个专注于辅助字体设计与排版检索的工具，通过算法整理汉字间的形近、部首与结构关联。</p>
-                <p><strong>使用授权：</strong><br>
-                本工具完全免费开放。本站收录的数据集由“自在造字”维护，致力于为设计社区提供灵感支持。</p>
-            </div>
-
-            <div class="mt-6 text-center">
-                 <p class="text-[10px] text-slate-400 dark:text-slate-500 mb-2">Designed & Developed by</p>
-                 <a href="https://www.zizao.top" target="_blank" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">自在造字</a>
+            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-white/5 text-center flex flex-col gap-2">
+                 <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest opacity-70">Designed & Developed by</p>
+                 <a href="https://www.zizao.top" target="_blank" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">自在造字 · ZiZao Studio</a>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-2.5 rounded-full shadow-2xl bg-slate-900/80 dark:bg-white/90 backdrop-blur-md text-white/90 dark:text-black/90 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) opacity-0 translate-y-8 scale-95 pointer-events-none ring-1 ring-white/10">
-        <div class="bg-green-500/20 dark:bg-green-500/10 p-1 rounded-full">
-            <i data-lucide="check" width="14" class="text-green-400 dark:text-green-600 stroke-[3]"></i>
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-3 px-6 py-3 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.1)] bg-slate-900/90 dark:bg-white/90 backdrop-blur-xl border border-white/10 dark:border-black/5 text-white dark:text-black transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) opacity-0 translate-y-8 scale-90 pointer-events-none">
+        <div class="flex items-center justify-center">
+            <i data-lucide="check" width="18" class="text-green-400 dark:text-green-600 stroke-[3]"></i>
         </div>
-        <span id="toast-message" class="font-medium text-sm pr-1">已复制</span>
+        <span id="toast-message" class="font-bold text-sm tracking-wide pr-1">已复制</span>
     </div>
 
     <script src="data.js"></script>
-    <script src="app.js"></script>
+
+    <script>
+        // ==========================================
+        // 预设偏旁部首 (如果 data.js 未加载，提供回退或由 data.js 定义)
+        // ==========================================
+        
+        window.AppLibrary = window.AppLibrary || {};
+
+        // 1. 解析数据
+        window.AppLibrary.parseData = function() {
+            if (typeof RAW_DATA_INPUTS === 'undefined') {
+                console.error("Critical: data.js not loaded.");
+                return [];
+            }
+            return RAW_DATA_INPUTS.map(str => {
+                const match = str.match(/^(.)\(([^)]*)\)$/);
+                if (match) {
+                    return {
+                        key: match[1],
+                        components: match[2] ? match[2].split('') : []
+                    };
+                }
+                return null;
+            }).filter(item => item !== null);
+        };
+
+        // 2. 统计热度
+        window.AppLibrary.calculateStats = function(data) {
+            const frequencyMap = {};
+            data.forEach(entry => {
+                if (!frequencyMap[entry.key]) frequencyMap[entry.key] = 0;
+                entry.components.forEach(comp => {
+                    frequencyMap[comp] = (frequencyMap[comp] || 0) + 1;
+                });
+            });
+            return { frequencyMap };
+        };
+
+        // ==========================================
+        // 应用逻辑
+        // ==========================================
+        
+        const State = {
+            searchTerm: '',
+            activeChar: null,
+            searchMode: 'similar', 
+            hotListMode: 'char', // 'char' | 'radical'
+            data: [],
+            stats: {}
+        };
+
+        let COMMON_RADICALS_SET = new Set();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            
+            State.data = window.AppLibrary.parseData();
+            State.stats = window.AppLibrary.calculateStats(State.data);
+            
+            if (typeof PRESET_RADICALS !== 'undefined') {
+                COMMON_RADICALS_SET = new Set(PRESET_RADICALS.split(''));
+            }
+
+            lucide.createIcons();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const q = urlParams.get('q');
+            const mode = urlParams.get('mode');
+
+            if (mode && (mode === 'similar' || mode === 'decomposition')) {
+                setSearchMode(mode, false);
+            } else {
+                setSearchMode('similar', false);
+            }
+
+            if (q) {
+                adjustLayoutForSearch(true);
+                handleSearch(q, false);
+            } else {
+                renderContent();
+            }
+            
+            const mainInput = document.getElementById('main-search-input');
+            mainInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') triggerSearch(); });
+            mainInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                const clearBtn = document.getElementById('main-clear-btn');
+                if(clearBtn) clearBtn.style.display = val ? 'block' : 'none';
+            });
+            const clearBtn = document.getElementById('main-clear-btn');
+            if(clearBtn) clearBtn.onclick = () => resetApp();
+
+            window.addEventListener('popstate', () => {
+                const params = new URLSearchParams(window.location.search);
+                const popQ = params.get('q') || '';
+                const popMode = params.get('mode') || 'similar';
+                State.searchMode = popMode;
+                updateTabStyles();
+                if(popQ) adjustLayoutForSearch(true);
+                else adjustLayoutForSearch(false);
+                handleSearch(popQ, false); 
+            });
+        });
+
+        // ----------------- 逻辑函数 -----------------
+
+        function initTheme() {
+            const btn = document.getElementById('theme-toggle-btn');
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                if(btn) btn.title = "切换到日间模式";
+            } else {
+                document.documentElement.classList.remove('dark');
+                if(btn) btn.title = "切换到深色模式";
+            }
+        }
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('theme-toggle-btn');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark'); localStorage.theme = 'light'; if(btn) btn.title = "切换到深色模式";
+            } else {
+                html.classList.add('dark'); localStorage.theme = 'dark'; if(btn) btn.title = "切换到日间模式";
+            }
+            lucide.createIcons();
+        }
+
+        function toggleHotListMode() {
+            State.hotListMode = State.hotListMode === 'char' ? 'radical' : 'char';
+            
+            const slider = document.getElementById('hot-mode-slider');
+            const textChar = document.getElementById('hot-mode-text-char');
+            const textRad = document.getElementById('hot-mode-text-radical');
+            
+            if (slider && textChar && textRad) {
+                if (State.hotListMode === 'radical') {
+                    slider.classList.remove('translate-x-0');
+                    slider.classList.add('translate-x-[84px]');
+                    
+                    textChar.classList.replace('text-slate-800', 'text-slate-500');
+                    textChar.classList.replace('dark:text-white', 'dark:text-slate-400');
+                    
+                    textRad.classList.replace('text-slate-500', 'text-slate-800');
+                    textRad.classList.replace('dark:text-slate-400', 'dark:text-white');
+                } else {
+                    slider.classList.remove('translate-x-[84px]');
+                    slider.classList.add('translate-x-0');
+                    
+                    textChar.classList.replace('text-slate-500', 'text-slate-800');
+                    textChar.classList.replace('dark:text-slate-400', 'dark:text-white');
+                    
+                    textRad.classList.replace('text-slate-800', 'text-slate-500');
+                    textRad.classList.replace('dark:text-white', 'dark:text-slate-400');
+                }
+            }
+
+            const grid = document.getElementById('hot-list-grid');
+            if (grid) {
+                grid.innerHTML = generateHotListItems();
+                lucide.createIcons();
+            }
+        }
+
+        function triggerSearch() {
+            const input = document.getElementById('main-search-input');
+            handleSearch(input.value);
+        }
+
+        function handleSearch(value, updateUrl = true) {
+            const val = value.trim();
+            State.searchTerm = val;
+            State.activeChar = val ? val.charAt(0) : null;
+            const input = document.getElementById('main-search-input');
+            if (input.value !== val) input.value = val;
+            const clearBtn = document.getElementById('main-clear-btn');
+            if(clearBtn) clearBtn.style.display = val ? 'block' : 'none';
+
+            adjustLayoutForSearch(!!State.activeChar);
+            if (updateUrl) updateURLState();
+            renderContent();
+        }
+
+        function resetApp() { handleSearch(''); }
+
+        function handleRandom() {
+            const keys = Object.keys(State.stats.frequencyMap);
+            if (keys.length > 0) {
+                const randomKey = keys[Math.floor(Math.random() * keys.length)];
+                handleSearch(randomKey);
+            }
+        }
+
+        function setSearchMode(mode, updateUrl = true) {
+            State.searchMode = mode;
+            updateTabStyles();
+            if (updateUrl) updateURLState();
+            if (State.activeChar) renderContent();
+        }
+
+        function updateTabStyles() {
+            document.querySelectorAll('.search-tab').forEach(btn => {
+                const isTarget = btn.dataset.mode === State.searchMode;
+                const dot = btn.querySelector('.tab-dot');
+                if (isTarget) {
+                    btn.classList.add('active', 'text-slate-900', 'dark:text-white');
+                    btn.classList.remove('text-slate-400', 'dark:text-slate-500');
+                    if(dot) dot.classList.remove('scale-0');
+                } else {
+                    btn.classList.remove('active', 'text-slate-900', 'dark:text-white');
+                    btn.classList.add('text-slate-400', 'dark:text-slate-500');
+                    if(dot) dot.classList.add('scale-0');
+                }
+            });
+        }
+
+        function updateURLState() {
+            const url = new URL(window.location);
+            if (State.activeChar) url.searchParams.set('q', State.activeChar);
+            else url.searchParams.delete('q');
+            url.searchParams.set('mode', State.searchMode);
+            window.history.pushState({}, '', url);
+        }
+
+        function adjustLayoutForSearch(isSearching) {
+            const logo = document.getElementById('main-logo');
+            const container = document.getElementById('search-container');
+            if (isSearching) {
+                logo.classList.replace('h-14', 'h-9'); logo.classList.add('mb-6'); logo.classList.remove('mb-10');
+                container.classList.remove('mt-16', 'mb-8'); container.classList.add('mt-6', 'mb-6');
+            } else {
+                logo.classList.replace('h-9', 'h-14'); logo.classList.remove('mb-6'); logo.classList.add('mb-10');
+                container.classList.add('mt-16', 'mb-8'); container.classList.remove('mt-6', 'mb-6');
+            }
+        }
+
+        function copyToClipboard(char) {
+            navigator.clipboard.writeText(char).then(() => {
+                showToast(`${char} 已复制`);
+            });
+        }
+        
+        function copyAllChars(charsString) {
+             const chars = charsString.split(',');
+             const textToCopy = chars.join('');
+             navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast(`已复制 ${chars.length} 个字符`);
+            });
+        }
+        
+        function showToast(message) {
+             const toast = document.getElementById('toast');
+             const msg = document.getElementById('toast-message');
+             msg.textContent = message;
+             toast.classList.remove('opacity-0', 'translate-y-8', 'scale-90', 'pointer-events-none');
+             setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-8', 'scale-90', 'pointer-events-none'); }, 2000);
+        }
+
+        function openZdic(e, char) {
+            e.stopPropagation();
+            window.open(`https://www.zdic.net/hans/${char}`, '_blank');
+        }
+
+        // ==================== 渲染核心逻辑 ====================
+
+        function renderContent() {
+            const container = document.getElementById('content-area');
+            
+            if (!State.activeChar) {
+                renderDashboard(container);
+                return;
+            }
+
+            const targetEntry = State.data.find(d => d.key === State.activeChar);
+            const targetComponents = targetEntry ? targetEntry.components : [];
+            
+            let html = '';
+            let hasResults = false;
+
+            // 模式 A: 近似
+            if (State.searchMode === 'similar') {
+                let searchKeys = new Set();
+                searchKeys.add(State.activeChar);
+                targetComponents.forEach(comp => {
+                    if (!COMMON_RADICALS_SET.has(comp)) searchKeys.add(comp);
+                });
+
+                let resultSet = new Set();
+                State.data.forEach(entry => {
+                    if (searchKeys.has(entry.key)) resultSet.add(entry.key);
+                    const hasSharedComponent = entry.components.some(c => searchKeys.has(c));
+                    if (hasSharedComponent) resultSet.add(entry.key);
+                });
+
+                const results = Array.from(resultSet);
+                if (results.length > 0) {
+                    hasResults = true;
+                    // 自定义标题
+                    const sectionTitle = `“${State.activeChar}”的近似字为：`;
+                    // 统一使用 text-teal-900 / bg-teal-100 配色
+                    html += generateSectionHtml(State.activeChar, sectionTitle, 'text-teal-900 dark:text-teal-100', 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200', results);
+                }
+            }
+
+            // 模式 B: 拆字
+            if (State.searchMode === 'decomposition') {
+                const sectionTitle = `“${State.activeChar}”的拆字结果为：`;
+                // 统一改为 text-teal-900 / bg-teal-100 配色，与近似字保持一致
+                const colorText = 'text-teal-900 dark:text-teal-100';
+                const colorBg = 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200';
+
+                if (targetComponents.length > 0) {
+                    hasResults = true;
+                    html += generateSectionHtml(State.activeChar, sectionTitle, colorText, colorBg, targetComponents);
+                } else if (!targetEntry) {
+                    html += generateEmptyHtml('未收录该字的拆解数据');
+                    container.innerHTML = html;
+                    lucide.createIcons();
+                    return;
+                } else {
+                     hasResults = true;
+                     html += generateSectionHtml(State.activeChar, sectionTitle, colorText, colorBg, [State.activeChar]);
+                }
+            }
+
+            if (!hasResults) {
+                html += generateEmptyHtml(`暂无“${State.activeChar}”的关联数据`);
+            }
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // ==================== 辅助渲染函数 ====================
+
+        function generateHotListItems() {
+            let items = [];
+            if (State.hotListMode === 'char') {
+                items = Object.entries(State.stats.frequencyMap)
+                    .sort((a, b) => b[1] - a[1])
+                    // FILTER: Exclude items that are in the radical set
+                    .filter(([char]) => !COMMON_RADICALS_SET.has(char))
+                    .slice(0, 48)
+                    .map(([char, heat]) => ({ display: char, value: char, heat: heat }));
+            } else {
+                const chars = typeof PRESET_RADICALS !== 'undefined' ? PRESET_RADICALS.split('') : [];
+                items = chars.map(char => {
+                    const heat = State.stats.frequencyMap[char] || 0;
+                    return { display: char, value: char, heat: heat };
+                });
+                // Sort radicals by heat as well
+                items.sort((a, b) => b.heat - a.heat);
+            }
+
+            return items.map(item => `
+                <div onclick="handleSearch('${item.value}')" class="group/card cursor-pointer bg-white/80 dark:bg-[#1a1a1a]/80 hover:bg-white dark:hover:bg-[#222] rounded-xl border border-white dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between px-3 py-2.5 hover:-translate-y-0.5 active:scale-95 active:shadow-none">
+                    <span class="font-serif text-lg font-bold text-slate-700 dark:text-slate-200 leading-none group-hover/card:text-teal-700 dark:group-hover/card:text-teal-400 transition-colors">${item.display}</span>
+                    <div onclick="showHeatSources(event, '${item.value}')" class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 hover:bg-orange-100 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer" title="点击查看热门溯源">
+                        <i data-lucide="flame" width="10" class="fill-orange-400 text-orange-400 dark:text-orange-500 dark:fill-orange-500"></i>
+                        ${item.heat}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDashboard(container) {
+            // 开关滑块状态样式
+            const sliderTransform = State.hotListMode === 'char' ? 'translate-x-0' : 'translate-x-[84px]';
+            const charTextClass = State.hotListMode === 'char' ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400';
+            const radicalTextClass = State.hotListMode === 'radical' ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400';
+
+            container.innerHTML = `
+                <div class="w-full mt-4">
+                    <div class="bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl p-8 rounded-[2rem] border border-white/60 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-100/40 to-transparent dark:from-orange-900/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                        
+                        <div class="flex items-center justify-between mb-8 relative z-10">
+                            <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                <div class="p-2 bg-white dark:bg-slate-700 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600">
+                                    <i data-lucide="trending-up" width="18" class="text-orange-500"></i>
+                                </div>
+                                <span>热门推荐 (TOP48)</span>
+                            </h3>
+
+                            <div class="relative flex items-center bg-slate-100 dark:bg-slate-700/50 rounded-full p-1 w-44 h-9 cursor-pointer shadow-inner" onclick="toggleHotListMode()">
+                                <div id="hot-mode-slider" class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-slate-600 rounded-full shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] left-1 ${sliderTransform}"></div>
+                                
+                                <div id="hot-mode-text-char" class="z-10 w-1/2 text-center text-xs font-bold leading-7 transition-colors duration-300 ${charTextClass}">按字形</div>
+                                <div id="hot-mode-text-radical" class="z-10 w-1/2 text-center text-xs font-bold leading-7 transition-colors duration-300 ${radicalTextClass}">按偏旁</div>
+                            </div>
+                        </div>
+
+                        <div id="hot-list-grid" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 relative z-10">
+                            ${generateHotListItems()}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function generateSectionHtml(activeChar, title, titleColor, badgeClass, chars) {
+            return `
+                <div class="bg-white/70 dark:bg-[#111111]/70 backdrop-blur-xl rounded-[2.5rem] p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] dark:shadow-none border border-white/60 dark:border-white/5 mb-8">
+                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100/80 dark:border-slate-800">
+                        <h3 class="text-2xl font-bold ${titleColor} tracking-tight">${title}</h3>
+                        
+                        <button onclick="copyAllChars('${chars}')" title="复制所有字符" class="w-10 h-10 bg-slate-900 dark:bg-white hover:bg-black dark:hover:bg-slate-200 text-white dark:text-black rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 group/copy">
+                             <i data-lucide="copy" width="18"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-5">
+                        ${chars.map(c => generateCardHtml(c)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateEmptyHtml(msg) {
+            return `
+                <div class="text-center py-28 bg-white/60 dark:bg-[#111111]/60 backdrop-blur-xl rounded-[2rem] border border-white/50 dark:border-white/5 mt-8 shadow-sm">
+                    <div class="w-20 h-20 bg-slate-100/50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="search-x" class="text-slate-300 dark:text-slate-600" width="32"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-700 dark:text-slate-300">${msg}</h3>
+                    <p class="text-slate-400 dark:text-slate-500 mt-2 text-sm font-medium">请尝试切换分类或搜索其他汉字</p>
+                </div>
+            `;
+        }
+
+        function generateCardHtml(char) {
+            const heat = State.stats.frequencyMap[char] || 0;
+            return `
+                <div onclick="copyToClipboard('${char}')"
+                    class="group relative flex flex-col items-center justify-center bg-white/80 dark:bg-[#161616] backdrop-blur-sm rounded-2xl h-36 shadow-[0_4px_12px_rgba(0,0,0,0.02)] dark:shadow-none border border-white/80 dark:border-white/5 hover:border-blue-100 dark:hover:border-slate-700 hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] dark:hover:shadow-none hover:-translate-y-1 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) cursor-pointer select-none overflow-hidden"
+                >
+                    <button onclick="openZdic(event, '${char}')" class="absolute top-2.5 right-2.5 p-1.5 text-slate-300 dark:text-slate-700 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-300 z-20" title="汉典">
+                        <i data-lucide="external-link" width="14"></i>
+                    </button>
+                    <div class="text-5xl font-sans font-medium text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white group-hover:scale-110 transition-all duration-500 z-10 mb-2">${char}</div>
+                    <div class="absolute bottom-3 flex items-center gap-1 opacity-80 group-hover:opacity-0 transition-opacity duration-300">
+                        <i data-lucide="flame" width="12" class="fill-orange-400 text-orange-400 dark:text-orange-500 dark:fill-orange-500"></i>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-600 font-sans">${heat}</span>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 h-9 bg-slate-900/5 dark:bg-white/5 backdrop-blur-[2px] border-t border-slate-100 dark:border-white/5 flex items-center justify-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-30">
+                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 tracking-wide">点击复制</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ---------------- 模态框逻辑 (Heat Source) ----------------
+
+        function showHeatSources(e, char) {
+            e.stopPropagation();
+            const parents = State.data.filter(d => d.components.includes(char));
+            const heat = State.stats.frequencyMap[char] || 0;
+
+            document.getElementById('modal-char-icon').textContent = char;
+            document.getElementById('modal-heat-val').textContent = heat;
+            
+            const listEl = document.getElementById('modal-source-list');
+            listEl.innerHTML = parents.map(p => `
+                <div onclick="closeHeatModal(); handleSearch('${p.key}')" class="flex flex-col items-center justify-center aspect-square bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/20 hover:border-orange-200 dark:hover:border-orange-500/30 cursor-pointer transition-colors group">
+                    <span class="text-xl font-serif font-bold text-slate-700 dark:text-slate-200 group-hover:text-orange-600 dark:group-hover:text-orange-400">${p.key}</span>
+                </div>
+            `).join('');
+
+            const modal = document.getElementById('heat-source-modal');
+            const backdrop = modal.querySelector('.modal-backdrop');
+            const content = modal.querySelector('.modal-content');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            requestAnimationFrame(() => { backdrop.classList.remove('opacity-0'); content.classList.remove('opacity-0', 'scale-95'); content.classList.add('opacity-100', 'scale-100'); });
+        }
+
+        function closeHeatModal() {
+            const modal = document.getElementById('heat-source-modal');
+            const backdrop = modal.querySelector('.modal-backdrop');
+            const content = modal.querySelector('.modal-content');
+            backdrop.classList.add('opacity-0'); content.classList.remove('opacity-100', 'scale-100'); content.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        function openInfoModal() {
+            const modal = document.getElementById('info-modal');
+            const backdrop = modal.querySelector('.modal-backdrop');
+            const content = modal.querySelector('.modal-content');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            requestAnimationFrame(() => { backdrop.classList.remove('opacity-0'); content.classList.remove('opacity-0', 'scale-95'); content.classList.add('opacity-100', 'scale-100'); });
+        }
+
+        function closeInfoModal() {
+            const modal = document.getElementById('info-modal');
+            const backdrop = modal.querySelector('.modal-backdrop');
+            const content = modal.querySelector('.modal-content');
+            backdrop.classList.add('opacity-0'); content.classList.remove('opacity-100', 'scale-100'); content.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id); if(!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
 </body>
 </html>
