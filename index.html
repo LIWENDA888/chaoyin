@@ -105,7 +105,7 @@
                             <div class="pl-5 text-slate-400/80 dark:text-slate-500">
                                 <i data-lucide="search" width="20"></i>
                             </div>
-                            <input type="text" id="main-search-input" placeholder="输入汉字 (例如: 咧)..." class="flex-1 h-full py-2 px-4 text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
+                            <input type="text" id="main-search-input" placeholder="输入汉字 (例如: 执)..." class="flex-1 h-full py-2 px-4 text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
                             <button id="main-clear-btn" class="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 p-2 hidden transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full mr-1">
                                 <i data-lucide="x" width="16"></i>
                             </button>
@@ -193,7 +193,7 @@
             <div class="flex items-center justify-center gap-3 mb-10">
                  <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" alt="Logo" class="h-8 w-auto object-contain block dark:hidden">
                  <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" alt="Logo" class="h-8 w-auto object-contain hidden dark:block">
-                 <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold border border-blue-100 dark:border-blue-500/20">v2.1</span>
+                 <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold border border-blue-100 dark:border-blue-500/20">v2.2</span>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 relative z-10 flex-1">
@@ -203,7 +203,7 @@
                     </h4>
                     <div class="prose prose-sm text-xs leading-relaxed text-slate-500 dark:text-slate-400 flex-1">
                         <p class="mb-4">“超引”是一个辅助字体设计与排版检索的工具，通过部件关联算法，快速寻找汉字间的形体联系。</p>
-                        <p>数据逻辑已更新为“双向部件索引”，支持拆字查询与模糊形近查询。</p>
+                        <p>数据逻辑已更新为“指定主部件索引”，支持使用星号(*)标记非首位的主结构。</p>
                     </div>
                 </div>
                 <div class="flex flex-col h-full bg-slate-50/50 dark:bg-white/5 rounded-2xl p-6 border border-slate-100 dark:border-white/5">
@@ -213,11 +213,11 @@
                     <ul class="space-y-4 text-xs text-slate-600 dark:text-slate-400 list-none">
                         <li class="flex gap-3">
                             <div class="w-6 h-6 rounded-full bg-white dark:bg-white/10 flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-300 font-bold font-sans">1</div>
-                            <div class="pt-1"><strong class="block text-slate-700 dark:text-slate-300 mb-0.5">近似搜索</strong> 搜索“咧”，智能关联由“列”组成的汉字家族（如：例、裂）。</div>
+                            <div class="pt-1"><strong class="block text-slate-700 dark:text-slate-300 mb-0.5">指定主部件</strong> 录入“执(⺘*丸)”，系统显示“⺘丸”，但搜索时以“丸”为核心进行关联。</div>
                         </li>
                         <li class="flex gap-3">
                             <div class="w-6 h-6 rounded-full bg-white dark:bg-white/10 flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-300 font-bold font-sans">2</div>
-                            <div class="pt-1"><strong class="block text-slate-700 dark:text-slate-300 mb-0.5">拆字功能</strong> 快速查询汉字的组成部件（如：咧 &rarr; 口 + 列）。</div>
+                            <div class="pt-1"><strong class="block text-slate-700 dark:text-slate-300 mb-0.5">默认逻辑</strong> 录入“丕(不一)”，未加星号，默认首位“不”为核心。</div>
                         </li>
                     </ul>
                 </div>
@@ -241,23 +241,57 @@
 
     <script>
         // ==========================================
-        // 预设偏旁部首 (如果 data.js 未加载，提供回退或由 data.js 定义)
+        // 预设偏旁部首
         // ==========================================
         
         window.AppLibrary = window.AppLibrary || {};
 
-        // 1. 解析数据
+        // 1. 解析数据 (包含星号逻辑)
         window.AppLibrary.parseData = function() {
             if (typeof RAW_DATA_INPUTS === 'undefined') {
                 console.error("Critical: data.js not loaded.");
                 return [];
             }
             return RAW_DATA_INPUTS.map(str => {
+                // 匹配格式：Key(部件...)
                 const match = str.match(/^(.)\(([^)]*)\)$/);
                 if (match) {
+                    const key = match[1];
+                    const rawComponents = match[2];
+                    
+                    let components = [];
+                    let mainComponent = null;
+
+                    // 临时数组，用于处理 split 后的字符
+                    // 检测 * 号并设定逻辑
+                    const chars = rawComponents.split('');
+                    let isNextMain = false;
+                    
+                    for (let i = 0; i < chars.length; i++) {
+                        if (chars[i] === '*') {
+                            isNextMain = true;
+                            // 跳过 * 号，不加入显示列表
+                            continue;
+                        }
+
+                        // 如果前一个是 *，则当前字符是主部件
+                        if (isNextMain) {
+                            mainComponent = chars[i];
+                            isNextMain = false;
+                        }
+
+                        components.push(chars[i]);
+                    }
+
+                    // 如果没有使用 * 标记，默认第一个部件为主部件
+                    if (!mainComponent && components.length > 0) {
+                        mainComponent = components[0];
+                    }
+
                     return {
-                        key: match[1],
-                        components: match[2] ? match[2].split('') : []
+                        key: key,
+                        components: components,
+                        mainComponent: mainComponent // 明确的主部件
                     };
                 }
                 return null;
@@ -516,35 +550,58 @@
             let html = '';
             let hasResults = false;
 
-            // 模式 A: 近似
+            // ==========================================
+            // 模式 A: 近似 (Similar Mode) - 星号/主部件逻辑优化
+            // ==========================================
             if (State.searchMode === 'similar') {
                 let searchKeys = new Set();
+                
+                // 1. 始终包含当前搜索的字本身 (兜底：搜次要部件时，能找到包含它的字)
                 searchKeys.add(State.activeChar);
-                targetComponents.forEach(comp => {
-                    if (!COMMON_RADICALS_SET.has(comp)) searchKeys.add(comp);
-                });
+
+                // 2. 如果该字有定义的主部件 (mainComponent)，则加入搜索键
+                if (targetEntry && targetEntry.mainComponent) {
+                    searchKeys.add(targetEntry.mainComponent);
+                }
 
                 let resultSet = new Set();
                 State.data.forEach(entry => {
-                    if (searchKeys.has(entry.key)) resultSet.add(entry.key);
+                    // 排除自己
+                    if (entry.key === State.activeChar) return;
+
+                    // 匹配逻辑：
+                    // 1. 对方 Key 就是我们的搜索词 (搜"丕" -> 找到"不")
+                    if (searchKeys.has(entry.key)) {
+                        resultSet.add(entry.key);
+                    }
+
+                    // 2. 对方包含了我们正在搜的那个“主部件”
+                    // 例如：搜“主(丶*一土)”，主部件是“一”。
+                    // 遇到“王(一土)”，它包含了“一”，所以算近似。
+                    // 遇到“丕(不一)”，它包含了“一”，也算近似（因为共享了主部件）。
                     const hasSharedComponent = entry.components.some(c => searchKeys.has(c));
-                    if (hasSharedComponent) resultSet.add(entry.key);
+                    if (hasSharedComponent) {
+                        resultSet.add(entry.key);
+                    }
                 });
 
                 const results = Array.from(resultSet);
                 if (results.length > 0) {
                     hasResults = true;
-                    // 自定义标题
-                    const sectionTitle = `“${State.activeChar}”的近似字为：`;
-                    // 统一使用 text-teal-900 / bg-teal-100 配色
+                    // 如果有主部件，提示一下
+                    const mainCompTip = (targetEntry && targetEntry.mainComponent) 
+                        ? `<span class="opacity-60 text-[0.6em] ml-2 font-normal">(关联核: ${targetEntry.mainComponent})</span>` 
+                        : '';
+                    const sectionTitle = `“${State.activeChar}”的近似字${mainCompTip}：`;
                     html += generateSectionHtml(State.activeChar, sectionTitle, 'text-teal-900 dark:text-teal-100', 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200', results);
                 }
             }
 
-            // 模式 B: 拆字
+            // ==========================================
+            // 模式 B: 拆字 (Decomposition Mode)
+            // ==========================================
             if (State.searchMode === 'decomposition') {
                 const sectionTitle = `“${State.activeChar}”的拆字结果为：`;
-                // 统一改为 text-teal-900 / bg-teal-100 配色，与近似字保持一致
                 const colorText = 'text-teal-900 dark:text-teal-100';
                 const colorBg = 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200';
 
@@ -642,7 +699,7 @@
             return `
                 <div class="bg-white/70 dark:bg-[#111111]/70 backdrop-blur-xl rounded-[2.5rem] p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] dark:shadow-none border border-white/60 dark:border-white/5 mb-8">
                     <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100/80 dark:border-slate-800">
-                        <h3 class="text-2xl font-bold ${titleColor} tracking-tight">${title}</h3>
+                        <h3 class="text-2xl font-bold ${titleColor} tracking-tight flex items-end">${title}</h3>
                         
                         <button onclick="copyAllChars('${chars}')" title="复制所有字符" class="w-10 h-10 bg-slate-900 dark:bg-white hover:bg-black dark:hover:bg-slate-200 text-white dark:text-black rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 group/copy">
                              <i data-lucide="copy" width="18"></i>
