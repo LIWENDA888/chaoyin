@@ -107,7 +107,7 @@
                                 <i data-lucide="search" width="18" class="sm:w-5 sm:h-5"></i>
                             </div>
                             <!-- Input Text Size Adjusted: text-base on mobile -->
-                            <input type="text" id="main-search-input" placeholder="请输入单个汉字..." class="flex-1 h-full py-2 px-3 sm:px-4 text-base sm:text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
+                            <input type="text" id="main-search-input" placeholder="输入汉字 (例如: 执)..." class="flex-1 h-full py-2 px-3 sm:px-4 text-base sm:text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
                             <button id="main-clear-btn" class="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 p-2 hidden transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full mr-1">
                                 <i data-lucide="x" width="14" class="sm:w-4 sm:h-4"></i>
                             </button>
@@ -601,7 +601,7 @@
             // 模式 B: 拆字 (Decomposition Mode)
             // ==========================================
             if (State.searchMode === 'decomposition') {
-                const sectionTitle = `“${State.activeChar}”的拆字结果为：`;
+                const sectionTitle = `“${State.activeChar}”的拆字结果：`;
                 const colorText = 'text-teal-900 dark:text-teal-100';
                 const colorBg = 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200';
 
