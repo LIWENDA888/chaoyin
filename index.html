@@ -101,13 +101,12 @@
                 <div class="flex w-full gap-2 sm:gap-3 items-center">
                     <div class="relative flex-grow group">
                         <div class="absolute -inset-0.5 bg-gradient-to-r from-slate-200 to-slate-200 dark:from-slate-800 dark:to-slate-800 rounded-full blur opacity-40 group-hover:opacity-60 transition duration-500"></div>
-                        <!-- Search Bar Size Adjusted: h-12 on mobile, h-14 on sm -->
                         <div class="relative flex items-center bg-white/70 dark:bg-[#111111]/80 backdrop-blur-xl rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/50 dark:border-white/5 h-12 sm:h-14 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 dark:focus-within:ring-blue-400/20 focus-within:bg-white/90 dark:focus-within:bg-[#1a1a1a] transition-all duration-300">
                             <div class="pl-4 sm:pl-5 text-slate-400/80 dark:text-slate-500">
                                 <i data-lucide="search" width="18" class="sm:w-5 sm:h-5"></i>
                             </div>
-                            <!-- Input Text Size Adjusted: text-base on mobile -->
-                            <input type="text" id="main-search-input" placeholder="输入汉字 (例如: 执)..." class="flex-1 h-full py-2 px-3 sm:px-4 text-base sm:text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
+                            <!-- [修改] placeholder 文本 -->
+                            <input type="text" id="main-search-input" placeholder="请输入单个汉字..." class="flex-1 h-full py-2 px-3 sm:px-4 text-base sm:text-lg outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 font-sans bg-transparent tracking-wide" maxlength="1">
                             <button id="main-clear-btn" class="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 p-2 hidden transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full mr-1">
                                 <i data-lucide="x" width="14" class="sm:w-4 sm:h-4"></i>
                             </button>
@@ -195,7 +194,7 @@
             <div class="flex items-center justify-center gap-3 mb-8 sm:mb-10">
                  <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" alt="Logo" class="h-6 sm:h-8 w-auto object-contain block dark:hidden">
                  <img src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251123/Vy7h/538X150/11.png/webp" alt="Logo" class="h-6 sm:h-8 w-auto object-contain hidden dark:block">
-                 <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold border border-blue-100 dark:border-blue-500/20">v2.3</span>
+                 <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold border border-blue-100 dark:border-blue-500/20">v2.4</span>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12 relative z-10 flex-1">
@@ -411,7 +410,8 @@
             if (slider && textChar && textRad) {
                 if (State.hotListMode === 'radical') {
                     slider.classList.remove('translate-x-0');
-                    slider.classList.add('translate-x-[84px]');
+                    // [修改] 手机端移动距离约 60px (128-8)/2，电脑端 84px
+                    slider.classList.add('translate-x-[60px]', 'sm:translate-x-[84px]');
                     
                     textChar.classList.replace('text-slate-800', 'text-slate-500');
                     textChar.classList.replace('dark:text-white', 'dark:text-slate-400');
@@ -419,7 +419,7 @@
                     textRad.classList.replace('text-slate-500', 'text-slate-800');
                     textRad.classList.replace('dark:text-slate-400', 'dark:text-white');
                 } else {
-                    slider.classList.remove('translate-x-[84px]');
+                    slider.classList.remove('translate-x-[60px]', 'sm:translate-x-[84px]');
                     slider.classList.add('translate-x-0');
                     
                     textChar.classList.replace('text-slate-500', 'text-slate-800');
@@ -557,12 +557,12 @@
             let hasResults = false;
 
             // ==========================================
-            // 模式 A: 关联 (Similar Mode) - 星号/主部件逻辑优化
+            // 模式 A: 关联 (Similar Mode)
             // ==========================================
             if (State.searchMode === 'similar') {
                 let searchKeys = new Set();
                 
-                // 1. 始终包含当前搜索的字本身 (兜底：搜次要部件时，能找到包含它的字)
+                // 1. 始终包含当前搜索的字本身
                 searchKeys.add(State.activeChar);
 
                 // 2. 如果该字有定义的主部件 (mainComponent)，则加入搜索键
@@ -591,7 +591,7 @@
                 const results = Array.from(resultSet);
                 if (results.length > 0) {
                     hasResults = true;
-                    // 【修改】移除“关联核”提示，只显示纯标题
+                    // [修改] 纯标题
                     const sectionTitle = `“${State.activeChar}”的关联字：`;
                     html += generateSectionHtml(State.activeChar, sectionTitle, 'text-teal-900 dark:text-teal-100', 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200', results);
                 }
@@ -601,6 +601,7 @@
             // 模式 B: 拆字 (Decomposition Mode)
             // ==========================================
             if (State.searchMode === 'decomposition') {
+                // [修改] 文案去掉“为”
                 const sectionTitle = `“${State.activeChar}”的拆字结果：`;
                 const colorText = 'text-teal-900 dark:text-teal-100';
                 const colorBg = 'bg-teal-100/50 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200';
@@ -646,7 +647,6 @@
                 items.sort((a, b) => b.heat - a.heat);
             }
 
-            // [修改] 缩小手机端的 padding, text size
             return items.map(item => `
                 <div onclick="handleSearch('${item.value}')" class="group/card cursor-pointer bg-white/80 dark:bg-[#1a1a1a]/80 hover:bg-white dark:hover:bg-[#222] rounded-xl border border-white dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between px-2 py-2 sm:px-3 sm:py-2.5 hover:-translate-y-0.5 active:scale-95 active:shadow-none">
                     <span class="font-serif text-base sm:text-lg font-bold text-slate-700 dark:text-slate-200 leading-none group-hover/card:text-teal-700 dark:group-hover/card:text-teal-400 transition-colors">${item.display}</span>
@@ -659,30 +659,31 @@
         }
 
         function renderDashboard(container) {
-            // 开关滑块状态样式
-            const sliderTransform = State.hotListMode === 'char' ? 'translate-x-0' : 'translate-x-[84px]';
+            // [修改] 开关滑块状态样式：兼容手机(60px)和电脑(84px)
+            const sliderTransform = State.hotListMode === 'char' ? 'translate-x-0' : 'translate-x-[60px] sm:translate-x-[84px]';
             const charTextClass = State.hotListMode === 'char' ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400';
             const radicalTextClass = State.hotListMode === 'radical' ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400';
 
-            // [修改] 缩小容器的 padding (p-5 sm:p-8)
             container.innerHTML = `
                 <div class="w-full mt-2 sm:mt-4">
                     <div class="bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-100/40 to-transparent dark:from-orange-900/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
                         
                         <div class="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
-                            <h3 class="font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2 sm:gap-3">
-                                <div class="p-1.5 sm:p-2 bg-white dark:bg-slate-700 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600">
+                            <!-- [修改] 手机端字体调小，防止换行 -->
+                            <h3 class="font-bold text-sm sm:text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2 sm:gap-3">
+                                <div class="p-1 sm:p-2 bg-white dark:bg-slate-700 rounded-xl shadow-sm border border-slate-100 dark:border-slate-600">
                                     <i data-lucide="trending-up" width="16" class="sm:w-[18px] text-orange-500"></i>
                                 </div>
                                 <span>热门推荐 (TOP48)</span>
                             </h3>
 
-                            <div class="relative flex items-center bg-slate-100 dark:bg-slate-700/50 rounded-full p-1 w-44 h-9 cursor-pointer shadow-inner" onclick="toggleHotListMode()">
+                            <!-- [修改] 手机端按钮瘦身：w-32 h-7 -->
+                            <div class="relative flex items-center bg-slate-100 dark:bg-slate-700/50 rounded-full p-1 w-32 h-7 sm:w-44 sm:h-9 cursor-pointer shadow-inner" onclick="toggleHotListMode()">
                                 <div id="hot-mode-slider" class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-slate-600 rounded-full shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] left-1 ${sliderTransform}"></div>
                                 
-                                <div id="hot-mode-text-char" class="z-10 w-1/2 text-center text-xs font-bold leading-7 transition-colors duration-300 ${charTextClass}">按字形</div>
-                                <div id="hot-mode-text-radical" class="z-10 w-1/2 text-center text-xs font-bold leading-7 transition-colors duration-300 ${radicalTextClass}">按偏旁</div>
+                                <div id="hot-mode-text-char" class="z-10 w-1/2 text-center text-[10px] sm:text-xs font-bold leading-[20px] sm:leading-7 transition-colors duration-300 ${charTextClass}">按字形</div>
+                                <div id="hot-mode-text-radical" class="z-10 w-1/2 text-center text-[10px] sm:text-xs font-bold leading-[20px] sm:leading-7 transition-colors duration-300 ${radicalTextClass}">按偏旁</div>
                             </div>
                         </div>
 
@@ -696,7 +697,6 @@
         }
 
         function generateSectionHtml(activeChar, title, titleColor, badgeClass, chars) {
-            // [修改] 缩小手机端的 Padding (p-5 sm:p-10), title size (text-xl sm:text-2xl)
             return `
                 <div class="bg-white/70 dark:bg-[#111111]/70 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] dark:shadow-none border border-white/60 dark:border-white/5 mb-8">
                     <div class="flex items-center justify-between mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-slate-100/80 dark:border-slate-800">
@@ -714,7 +714,6 @@
         }
 
         function generateEmptyHtml(msg) {
-            // [修改] 减小高度 py-20 sm:py-28
             return `
                 <div class="text-center py-20 sm:py-28 bg-white/60 dark:bg-[#111111]/60 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] border border-white/50 dark:border-white/5 mt-6 sm:mt-8 shadow-sm">
                     <div class="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100/50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
@@ -728,9 +727,6 @@
 
         function generateCardHtml(char) {
             const heat = State.stats.frequencyMap[char] || 0;
-            // [修改] 核心：
-            // 高度：h-28 (手机) / h-36 (电脑)
-            // 字号：text-3xl (手机) / text-5xl (电脑)
             return `
                 <div onclick="copyToClipboard('${char}')"
                     class="group relative flex flex-col items-center justify-center bg-white/80 dark:bg-[#161616] backdrop-blur-sm rounded-xl sm:rounded-2xl h-24 sm:h-36 shadow-[0_4px_12px_rgba(0,0,0,0.02)] dark:shadow-none border border-white/80 dark:border-white/5 hover:border-blue-100 dark:hover:border-slate-700 hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] dark:hover:shadow-none hover:-translate-y-1 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) cursor-pointer select-none overflow-hidden"
